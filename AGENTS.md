@@ -12,7 +12,7 @@ Build a student reference handbook for digital photography, from capture to fine
 - Scanning, including film scanning where relevant.
 - Color management, output preparation, and fine art printing.
 
-Use Capture, Lightroom, Photoshop, Scanning, and Print as the main reference sections. Parent pages have their own content and link to child pages. Do not invent course policies, assignments, equipment, software editions, or lab-specific settings. Ask for these details when they affect the work.
+Use Digital Images, Capture, Lightroom, Photoshop, Scanning, and Print as the main reference sections. Parent pages have their own content and link to child pages. Do not invent course policies, assignments, equipment, software editions, or lab-specific settings. Ask for these details when they affect the work.
 
 ## Writing and teaching
 
@@ -27,12 +27,13 @@ Use Capture, Lightroom, Photoshop, Scanning, and Print as the main reference sec
 ## Repository and development
 
 - This is a VitePress site with npm and a committed `package-lock.json`.
-- Handbook pages are Markdown files; the home page is `index.md`.
-- Site configuration and navigation live in `.vitepress/config.mts`.
+- Handbook pages live in `content/`; the home page is `content/index.md`. VitePress uses `srcDir: 'content'`, so this folder name is not part of page URLs.
+- Site configuration lives in `.vitepress/config.mts`. `.vitepress/navigation.mjs` generates menus from page frontmatter: `title`, optional `menuTitle` (falls back to `title`), and numeric `order`. Folder `index.md` files define parent pages. Use `menu: false` to omit a page or section from menus; ignore underscore-prefixed directories such as `_includes`. Keep page headings tied to `title` using `# {{ $frontmatter.title }}`. The homepage uses the home layout instead. Restart the development server after changing navigation metadata or adding, moving, or deleting pages.
 - Theme customization lives in `.vitepress/theme/index.ts` and `.vitepress/theme/style.css`.
-- Reusable Vue components live in `.vitepress/theme/components/` and are registered globally in the theme. `WebsiteEmbed` accepts `src`, `title`, and an optional CSS `height`.
-- Reusable placeholder examples live in `_includes/component-examples.md` and are included in parent and child pages using VitePress Markdown includes. The include directory is excluded from standalone page generation.
+- Reusable Vue components live in `.vitepress/theme/components/` and are registered globally in the theme. `WebsiteEmbed` accepts `src`, `title`, an optional CSS `height`, an optional `external-url` for its external link (defaults to `src`), and an opt-in `expandable` lightbox. The lightbox uses a native dialog with a separate iframe instance.
+- Reusable placeholder examples live in `content/_includes/component-examples.md` and are included in parent and child pages using VitePress Markdown includes. The include directory is excluded from standalone page generation.
 - Keep navigation and internal links aligned with content changes.
+- Use `createSectionSidebars` to open the active top-level sidebar group and collapse other groups when navigating between sections. Preserve manual toggles within a section.
 - Do not edit `node_modules` or generated VitePress cache/build output.
 
 ## Commands and validation
