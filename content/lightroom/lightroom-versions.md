@@ -1,6 +1,7 @@
 ---
 title: Lightroom vs Lightroom Classic
 menuTitle: Lightroom Versions
+icon: git-fork
 order: 2
 ---
 

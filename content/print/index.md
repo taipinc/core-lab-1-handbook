@@ -1,5 +1,6 @@
 ---
 title: Print
+icon: printer
 menuTitle: Print
 order: 5
 ---

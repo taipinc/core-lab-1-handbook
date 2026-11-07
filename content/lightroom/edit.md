@@ -1,6 +1,7 @@
 ---
 title: Edit
 menuTitle: Edit
+icon: pencil-ruler
 order: 5
 ---
 

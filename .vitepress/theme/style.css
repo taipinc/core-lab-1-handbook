@@ -137,3 +137,40 @@
   --docsearch-primary-color: var(--vp-c-brand-1) !important;
 }
 
+/* Lucide icons in the sidebar and top navigation. */
+.menu-page-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.menu-page-label > svg {
+  width: 1.1em;
+  height: 1.1em;
+  flex-shrink: 0;
+}
+
+/**
+ * Handbook: inline highlights (text enclosed in single backticks)
+ * Keep the surrounding font and use a soft yellow marker in both themes.
+ * This selector excludes fenced code blocks.
+ * -------------------------------------------------------------------------- */
+
+:root {
+  --handbook-highlight-bg: rgba(255, 210, 64, 0.25);
+}
+
+.dark {
+  --handbook-highlight-bg: rgba(255, 210, 64, 0.18);
+}
+
+.vp-doc :not(pre) > code {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  background-color: var(--handbook-highlight-bg);
+  border-radius: 0.15em;
+  padding: 0.05em 0.25em;
+}
+

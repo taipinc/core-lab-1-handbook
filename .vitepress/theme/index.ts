@@ -3,6 +3,7 @@ import { h } from 'vue'
 import type { Theme } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
 import WebsiteEmbed from './components/WebsiteEmbed.vue'
+import ChildPages from './components/ChildPages.vue'
 import './style.css'
 
 export default {
@@ -14,5 +15,6 @@ export default {
   },
   enhanceApp({ app }) {
     app.component('WebsiteEmbed', WebsiteEmbed)
+    app.component('ChildPages', ChildPages)
   }
 } satisfies Theme

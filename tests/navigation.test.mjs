@@ -43,6 +43,32 @@ test('switching sections opens the current group and collapses the others', () =
   assert.deepEqual(lightroom.map(item => item.items), sidebar.map(item => item.items))
 })
 
+test('nested sections expand on overview and child pages and reset when leaving', () => {
+  const sidebar = [{
+    text: 'Photoshop', link: '/photoshop/', collapsed: true,
+    items: [
+      { text: 'Adjustments', link: '/photoshop/adjustments/', collapsed: true,
+        items: [{ text: 'Curves', link: '/photoshop/adjustments/curves' }] },
+      { text: 'Layers', link: '/photoshop/layers' }
+    ]
+  }]
+  const sidebars = createSectionSidebars(sidebar)
+  const photoshop = sidebars['/photoshop/']
+  const adjustments = sidebars['/photoshop/adjustments/']
+  assert.equal(photoshop[0].collapsed, false)
+  assert.equal(photoshop[0].items[0].collapsed, true)
+  assert.equal(adjustments[0].collapsed, false)
+  assert.equal(adjustments[0].items[0].collapsed, false)
+  assert.notEqual(JSON.stringify(photoshop), JSON.stringify(adjustments))
+  assert.equal(sidebar[0].items[0].collapsed, true)
+  // Prefix matching uses the same configuration for the overview and children.
+  const matchingConfig = route => sidebars[Object.keys(sidebars)
+    .sort((a, b) => b.length - a.length).find(prefix => route.startsWith(prefix))]
+  assert.equal(matchingConfig('/photoshop/adjustments/'), adjustments)
+  assert.equal(matchingConfig('/photoshop/adjustments/curves.html'), adjustments)
+  assert.equal(matchingConfig('/photoshop/layers.html'), photoshop)
+})
+
 test('uses menu titles, title fallback, sibling order, and folder hierarchy', async () => {
   await withPages({
     'index.md': page('title: Home'),
@@ -51,7 +77,8 @@ test('uses menu titles, title fallback, sibling order, and folder hierarchy', as
     'capture/later.md': page('title: Later\norder: 2'),
     'capture/first.md': page('title: A longer page title\nmenuTitle: "Capture: basics"\norder: 1'),
     'capture/advanced/index.md': page('title: Advanced\norder: 3'),
-    'capture/advanced/detail.md': page('title: Detail')
+    'capture/advanced/detail.md': page('title: Detail'),
+    'capture/images/example.png': 'image placeholder'
   }, async directory => {
     const { nav, sidebar } = await generateNavigation(directory)
     assert.deepEqual(nav, [
@@ -98,7 +125,9 @@ test('reports invalid metadata and missing parent pages clearly', async () => {
     ['order: 1', /title/],
     ['title: Example\nmenuTitle: false', /menuTitle/],
     ['title: Example\norder: first', /order/],
-    ['title: Example\nmenu: hidden', /menu must/]
+    ['title: Example\nmenu: hidden', /menu must/],
+    ['title: Example\nicon: false', /icon must/],
+    ['title: Example\nicon: missing-handbook-icon', /unknown Lucide icon/]
   ]) {
     await withPages({ 'invalid.md': page(metadata) }, async directory => {
       await assert.rejects(generateNavigation(directory), message)
@@ -106,5 +135,21 @@ test('reports invalid metadata and missing parent pages clearly', async () => {
   }
   await withPages({ 'section/child.md': page('title: Child') }, async directory => {
     await assert.rejects(generateNavigation(directory), /section: add index.md/)
+  })
+})
+
+test('icons appear in navigation with plain labels available for cards', async () => {
+  await withPages({
+    'capture/index.md': page('title: Capture\nicon: camera'),
+    'capture/child.md': page('title: "Light & <Color>"\nicon: sun')
+  }, async directory => {
+    const { nav, sidebar } = await generateNavigation(directory)
+    assert.match(nav[0].text, /<svg aria-hidden="true"/)
+    assert.match(sidebar[0].text, /lucide-camera/)
+    const child = sidebar[0].items[0]
+    assert.equal(child.label, 'Light & <Color>')
+    assert.match(child.text, /Light &amp; &lt;Color&gt;/)
+    assert.match(child.icon, /lucide-sun/)
+    assert.equal(child.link, '/capture/child')
   })
 })

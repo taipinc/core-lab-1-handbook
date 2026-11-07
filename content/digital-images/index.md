@@ -1,5 +1,6 @@
 ---
 title: Digital Images
+icon: image
 menuTitle: Digital Images
 order: 2
 ---

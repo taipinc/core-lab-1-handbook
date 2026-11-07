@@ -1,6 +1,7 @@
 ---
 title: Import
 menuTitle: Import
+icon: arrow-down-to-line
 order: 3
 ---
 

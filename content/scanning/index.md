@@ -1,5 +1,6 @@
 ---
 title: Scanning
+icon: scan
 menuTitle: Scanning
 order: 4
 ---

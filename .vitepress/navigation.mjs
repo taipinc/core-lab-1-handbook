@@ -1,20 +1,33 @@
 import { readFileSync, readdirSync } from 'node:fs'
 import path from 'node:path'
 import { createMarkdownRenderer, disposeMdItInstance } from 'vitepress'
+import { renderIcon, menuText } from './icons.mjs'
 
-// Each section keeps the full menu, but starts with only its own group open.
-// Changing sections changes the sidebar configuration, which resets VitePress's
-// local toggle state. Pages within a section share a configuration so manual
-// toggles remain available without being reset on every page change.
+// Each section keeps the full menu, with only its ancestor groups open.
+// Nested sections share a configuration across their overview and child pages.
+// Leaving a section resets its toggles; manual toggles within it are preserved.
 export function createSectionSidebars(sidebar) {
   const sidebars = { '/': sidebar }
-  for (const active of sidebar) {
-    if (!active.items?.length || !active.link?.endsWith('/')) continue
-    sidebars[active.link] = sidebar.map(item => ({
+
+  function forSection(items, activeLink) {
+    return items.map(item => ({
       ...item,
-      ...(item.items?.length ? { collapsed: item.link !== active.link } : {})
+      ...(item.items?.length ? {
+        collapsed: !activeLink.startsWith(item.link),
+        items: forSection(item.items, activeLink)
+      } : {})
     }))
   }
+
+  function addSections(items) {
+    for (const item of items) {
+      if (!item.items?.length || !item.link?.endsWith('/')) continue
+      sidebars[item.link] = forSection(sidebar, item.link)
+      addSections(item.items)
+    }
+  }
+
+  addSections(sidebar)
   return sidebars
 }
 
@@ -42,8 +55,13 @@ export async function generateNavigation(contentDir) {
     if (data.menu !== undefined && typeof data.menu !== 'boolean') {
       fail('menu must be true or false when provided')
     }
+    let icon
+    if (data.icon !== undefined) {
+      try { icon = renderIcon(data.icon) } catch (error) { fail(error.message) }
+    }
     return {
       text: data.menuTitle ?? data.title,
+      ...(icon ? { icon } : {}),
       link: '/' + relative.replace(/(^|\/)index\.md$/, '$1').replace(/\.md$/, ''),
       order: data.order ?? Number.MAX_SAFE_INTEGER,
       visible: data.menu !== false,
@@ -64,6 +82,8 @@ export async function generateNavigation(contentDir) {
       if (entry.isDirectory()) {
         const section = readDirectory(file)
         if (!section.parent) {
+          // Asset-only folders do not define navigation sections.
+          if (!section.children.length) continue
           throw new Error(`${path.relative(contentDir, file)}: add index.md for the parent page`)
         }
         if (section.parent.visible) {
@@ -80,7 +100,8 @@ export async function generateNavigation(contentDir) {
 
   function sidebarItem(page) {
     return {
-      text: page.text,
+      text: menuText(page.text, page.icon),
+      ...(page.icon ? { label: page.text, icon: page.icon } : {}),
       link: page.link,
       ...(page.children?.length ? {
         collapsed: true,
@@ -93,7 +114,7 @@ export async function generateNavigation(contentDir) {
     const { parent, children } = readDirectory(contentDir)
     return {
       nav: [...(parent?.visible ? [parent] : []), ...children]
-        .map(({ text, link }) => ({ text, link })),
+        .map(({ text, link, icon }) => ({ text: menuText(text, icon), link })),
       sidebar: children.map(sidebarItem)
     }
   } finally {

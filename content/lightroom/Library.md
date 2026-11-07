@@ -1,6 +1,7 @@
 ---
 title: Library
 menuTitle: Library
+icon: library-big
 order: 4
 ---
 

@@ -1,7 +1,8 @@
 ---
-title: Child Page 3
-menuTitle: Child Page 3
-order: 3
+title: Photoshop Workspace
+menuTitle: Workspace
+icon: panels-top-left
+order: 1
 ---
 
 # {{ $frontmatter.title }}

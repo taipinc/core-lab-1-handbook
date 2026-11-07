@@ -1,7 +1,8 @@
 ---
-title: Child Page 2
-menuTitle: Child Page 2
-order: 2
+title: Masks
+menuTitle: Masks
+icon: opacity
+order: 4
 ---
 
 # {{ $frontmatter.title }}

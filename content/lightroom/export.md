@@ -1,7 +1,8 @@
 ---
-title: Child Page 1
-menuTitle: Child Page 1
-order: 1
+title: Export
+menuTitle: Export
+icon: file-up
+order: 6
 ---
 
 # {{ $frontmatter.title }}

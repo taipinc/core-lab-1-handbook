@@ -1,6 +1,7 @@
 ---
 title: File Management
 menuTitle: File Management
+icon: archive
 order: 1
 ---
 
